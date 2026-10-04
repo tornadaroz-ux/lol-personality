@@ -63,23 +63,25 @@ function showScreen(id) {
 
 function resetQuiz() {
   state.index = 0;
-  state.scores = {};
+  state.scores = {
+    Assassin: 0,
+    Fighter: 0,
+    Mage: 0,
+    Marksman: 0,
+    Support: 0,
+    Tank: 0,
+  };
   state.resultId = null;
-  Object.keys(champions).forEach((id) => {
-    state.scores[id] = 0;
-  });
 }
 
 function pickWinner() {
-  let bestId = Object.keys(champions)[0];
-  let bestScore = -1;
-  Object.entries(state.scores).forEach(([id, score]) => {
-    if (score > bestScore) {
-      bestScore = score;
-      bestId = id;
-    }
-  });
-  return bestId;
+  const candidates = Object.entries(champions).map(([id, champ]) => ({
+    id,
+    score: Math.max(0, ...(champ.tags || []).map((tag) => state.scores[tag] || 0)),
+  }));
+  const bestScore = Math.max(...candidates.map((candidate) => candidate.score));
+  const winners = candidates.filter((candidate) => candidate.score === bestScore);
+  return winners[Math.floor(Math.random() * winners.length)]?.id;
 }
 
 function renderQuestion() {
@@ -162,8 +164,8 @@ function chooseAnswer(answerIndex) {
   }
 
   const answer = question.answers[answerIndex];
-  Object.entries(answer.scores).forEach(([id, points]) => {
-    state.scores[id] += points;
+  Object.entries(answer.scores).forEach(([tag, points]) => {
+    state.scores[tag] += points;
   });
 
   playAnswerTone();

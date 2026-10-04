@@ -437,13 +437,7 @@ async function hydrateChampions() {
 hydrateChampions();
 
 function buildScores(tagList, points) {
-  const nextScores = {};
-  Object.entries(champions).forEach(([id, champ]) => {
-    if (tagList.some((tag) => champ.tags && champ.tags.includes(tag))) {
-      nextScores[id] = points;
-    }
-  });
-  return nextScores;
+  return Object.fromEntries(tagList.map((tag) => [tag, points]));
 }
 
 function createQuestions() {
@@ -560,4 +554,3 @@ function createQuestions() {
 }
 
 let questions = createQuestions();
-
