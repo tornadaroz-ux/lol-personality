@@ -4,19 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0a1428" />
-    <meta name="description" content="Care campion din League of Legends ești tu? Răspunde la 12 întrebări și află-ți match-ul perfect." />
+    <meta name="description" content="Alege League of Legends sau VALORANT, răspunde la quiz și află ce personaj ți se potrivește." />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta property="og:title" content="LoL Matchmaker — Care campion ești tu?" />
-    <meta property="og:description" content="Testează-ți personalitatea în League of Legends și află ce campion ți se potrivește." />
+    <meta property="og:title" content="Game Matchmaker — Ce personaj ți se potrivește?" />
+    <meta property="og:description" content="Testează-ți personalitatea în League of Legends sau VALORANT și află ce personaj ți se potrivește." />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="assets/icon.svg" />
     <meta property="og:image:type" content="image/svg+xml" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="LoL Matchmaker — Care campion ești tu?" />
-    <meta name="twitter:description" content="Testează-ți personalitatea în League of Legends și află ce campion ți se potrivește." />
+    <meta name="twitter:title" content="Game Matchmaker — Ce personaj ți se potrivește?" />
+    <meta name="twitter:description" content="Testează-ți personalitatea în League of Legends sau VALORANT și află ce personaj ți se potrivește." />
     <meta name="twitter:image" content="assets/icon.svg" />
-    <title>LoL Matchmaker — Care campion ești tu?</title>
+    <title>Game Matchmaker — Ce personaj ți se potrivește?</title>
     <link rel="icon" type="image/svg+xml" href="assets/icon.svg" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="stylesheet" href="css/style.css" />
@@ -25,7 +25,7 @@
     <div class="bg"></div>
 
     <header class="topbar">
-      <p class="logo">LoL Matchmaker</p>
+      <p class="logo">Game Matchmaker</p>
       <div class="lang-switch" role="group" aria-label="Language">
         <button type="button" class="lang-btn is-active" data-lang="ro">RO</button>
         <button type="button" class="lang-btn" data-lang="en">EN</button>
@@ -35,12 +35,22 @@
     <main>
       <section id="screen-start" class="screen is-visible">
         <p class="kicker" data-i18n="kicker">Quiz de personalitate</p>
-        <h1 data-i18n="title">Care campion din League of Legends ești tu?</h1>
-        <p class="lead" data-i18n="lead">
-          Răspunde la 12 întrebări. La final, îți arăt campionul care ți se potrivește.
+        <h1 id="start-title" data-i18n="chooseTitle">Alege universul</h1>
+        <p id="start-lead" class="lead" data-i18n="chooseLead">
+          Alege jocul și află ce personaj ți se potrivește.
         </p>
-        <button type="button" id="btn-start" class="btn-primary" data-i18n="start">
-          Începe
+        <div class="game-choices" role="group" aria-label="Alege jocul">
+          <button type="button" class="game-choice" data-game="lol" aria-pressed="false">
+            <span class="game-choice-name">League of Legends</span>
+            <span class="game-choice-description" data-i18n="lolDescription">Găsește campionul care ți se potrivește.</span>
+          </button>
+          <button type="button" class="game-choice" data-game="valorant" aria-pressed="false">
+            <span class="game-choice-name">VALORANT</span>
+            <span class="game-choice-description" data-i18n="valorantDescription">Află ce agent ți se potrivește.</span>
+          </button>
+        </div>
+        <button type="button" id="btn-start" class="btn-primary" data-i18n="chooseGame" disabled>
+          Alege un joc
         </button>
       </section>
 
@@ -59,12 +69,16 @@
           <img id="result-image" class="result-image" alt="" />
         </div>
         <h1 id="result-name"></h1>
+        <p id="result-title" class="result-title"></p>
         <div class="result-actions">
           <button type="button" id="btn-again" class="btn-primary" data-i18n="again">
             Joacă din nou
           </button>
+          <button type="button" id="btn-change-game" class="btn-secondary" data-i18n="changeGame">
+            Alege alt joc
+          </button>
         </div>
-        <p class="signature">Iti multumesc ca ai testat acest joc. -Joe</p>
+        <p class="signature" data-i18n="signature">Îți mulțumesc că ai încercat acest quiz. — Joe</p>
         <div class="cute-sticker" aria-label="Cute sticker animation">
           <span>✨</span>
           <span>💛</span>
@@ -74,7 +88,9 @@
     </main>
 
     <script src="js/i18n.js"></script>
+    <script src="js/champions.js"></script>
     <script src="js/data.js"></script>
+    <script src="js/valorant.js"></script>
     <script src="js/app.js"></script>
     <script>
       if ('serviceWorker' in navigator) {

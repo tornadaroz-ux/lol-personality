@@ -1,7 +1,7 @@
 {
-  "name": "LoL Matchmaker",
-  "short_name": "LoL Matchmaker",
-  "description": "League of Legends personality quiz that matches you with a champion.",
+  "name": "Game Matchmaker",
+  "short_name": "Game Matchmaker",
+  "description": "Personality quizzes that match you with a League of Legends champion or VALORANT agent.",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#0a1428",

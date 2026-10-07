@@ -1,10 +1,12 @@
-const CACHE_NAME = 'lol-matchmaker-v3';
+const CACHE_NAME = 'game-matchmaker-v4';
 const APP_SHELL = [
   './',
   './index.html',
   './css/style.css',
   './js/app.js',
+  './js/champions.js',
   './js/data.js',
+  './js/valorant.js',
   './js/i18n.js',
   './manifest.webmanifest',
   './assets/icon.svg'

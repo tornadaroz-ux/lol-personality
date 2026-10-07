@@ -1,23 +1,22 @@
-# LoL Personality
+# Game Matchmaker
 
-A bilingual (RO/EN) League of Legends personality quiz: answer a few questions and get a matching champion.
+A static personality quiz site that lets players choose between:
+- League of Legends
+- VALORANT
+
+After choosing a game, the quiz asks questions tailored to its characters and reveals the champion or agent that best matches the player. VALORANT agent portraits and the current roster are loaded from the public VALORANT API when online; a small built-in roster remains available offline.
 
 How to use:
 - Open `index.html` directly in a browser for a quick test.
-- Or serve the folder with any static web server if you want a cleaner browser experience.
+- Or serve the folder with any static web server:
+  `python3 -m http.server 8000`
+- Then open `http://localhost:8000`
 
-This version is built as a fully offline static export, so it works on both desktop and mobile devices without any internet connection or backend.
+The site is a static export and needs no backend. League of Legends champion details and VALORANT agent portraits are refreshed from public APIs when online; built-in fallback data keeps both quizzes usable offline.
 
-Export:
-- The project is ready to be zipped and sent to friends.
-- For a simple bundle, zip the project folder and open `index.html` in any browser.
+## Export / publish
 
-## Publish online with GitHub Pages
+- The project is ready to be zipped and shared.
+- For GitHub Pages, push the project to a public repository and enable Pages from the repository settings.
 
-The repository includes a GitHub Actions workflow that publishes the game whenever code is pushed to the `main` or `master` branch.
-
-1. In the repository, open **Settings → Pages** and choose **GitHub Actions** as the build and deployment source.
-2. Open the **Actions** tab and wait for **Deploy to GitHub Pages** to finish.
-3. Share the site URL shown in the deployment, usually `https://<your-username>.github.io/<repository-name>/`.
-
-After setup, each push to `main` or `master` publishes the updated game automatically. The workflow publishes only the files needed to play the game; no backend or build dependencies are required.
+The game is designed to be lightweight, portable, and easy to deploy anywhere with static hosting.
