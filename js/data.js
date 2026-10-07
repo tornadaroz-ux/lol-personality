@@ -381,16 +381,18 @@ Object.entries(FALLBACK_CHAMPIONS).forEach(([id, champ]) => {
   const narrative = buildNarrative(champ);
   champ.story = narrative;
   champ.traits = narrative.traits;
+  champ.profileTraits = championMetadata[champ.name]?.traits || [];
   champ.id = id;
 });
 
-const CHAMPION_URL = "https://ddragon.leagueoflegends.com/cdn/14.24.1/data/en_US/champion.json";
+const CHAMPION_URL = `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/data/en_US/champion.json`;
 let champions = { ...FALLBACK_CHAMPIONS };
 
 function normalizeChampion(id, data) {
   const name = data.name || id;
   const title = data.title || "Champion";
   const tags = Array.isArray(data.tags) ? data.tags : [];
+  const profileTraits = championMetadata[id]?.traits || [];
   const champion = {
     id,
     key: data.key || id,
@@ -402,6 +404,7 @@ function normalizeChampion(id, data) {
     image: `https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${id}_0.jpg`,
     imagePosition: "center 18%",
     tags,
+    profileTraits,
     blurb: buildPersonalityBlurb({ name, tags }),
   };
 
@@ -436,118 +439,121 @@ async function hydrateChampions() {
 
 hydrateChampions();
 
-function buildScores(tagList, points) {
-  return Object.fromEntries(tagList.map((tag) => [tag, points]));
+function buildScores(roleTags, profileTraits) {
+  return Object.fromEntries([
+    ...roleTags.map((tag) => [tag, 1]),
+    ...profileTraits.map((tag) => [tag, 2]),
+  ]);
 }
 
 function createQuestions() {
   return [
     {
-      text: { ro: "Ce înseamnă pentru tine un weekend ideal?", en: "What does the perfect weekend look like for you?" },
+      text: { ro: "Cum arată pentru tine o zi liberă reușită?", en: "What does a great day off look like to you?" },
       answers: [
-        { text: { ro: "Haos, prieteni și zero planuri", en: "Chaos, friends, and zero plans" }, scores: buildScores(["Marksman", "Assassin"], 2) },
-        { text: { ro: "Obiective clare și progres constant", en: "Clear goals and steady progress" }, scores: buildScores(["Fighter", "Tank"], 2) },
-        { text: { ro: "Ajut pe cineva și ies în evidență", en: "I help someone and stand out" }, scores: buildScores(["Support", "Mage"], 2) },
-        { text: { ro: "Singur, pe drumul meu", en: "Alone, on my own path" }, scores: buildScores(["Assassin", "Fighter"], 2) },
+        { text: { ro: "O aventură spontană, alături de prieteni.", en: "A spontaneous adventure with friends." }, scores: buildScores(["Marksman"], ["chaotic", "free", "playful"]) },
+        { text: { ro: "Un plan bine făcut și timp să-l duc la capăt.", en: "A solid plan and time to see it through." }, scores: buildScores(["Fighter", "Tank"], ["ambitious", "disciplined", "focused"]) },
+        { text: { ro: "Să fiu alături de oamenii la care țin.", en: "Being there for the people I care about." }, scores: buildScores(["Support", "Tank"], ["protector", "team", "caretaker"]) },
+        { text: { ro: "Timp pentru mine și propriile idei.", en: "Time to myself and my own ideas." }, scores: buildScores(["Assassin", "Mage"], ["independent", "curious", "inventive"]) },
       ],
     },
     {
-      text: { ro: "Ce te atrage cel mai mult la o persoană?", en: "What attracts you most to another person?" },
+      text: { ro: "Ce calitate apreciezi cel mai mult la oameni?", en: "Which quality do you value most in people?" },
       answers: [
-        { text: { ro: "Energie și idei nebunești", en: "Energy and wild ideas" }, scores: buildScores(["Marksman", "Mage"], 2) },
-        { text: { ro: "Inteligență și calm", en: "Intelligence and calm" }, scores: buildScores(["Assassin", "Support"], 2) },
-        { text: { ro: "Siguranță și onestitate", en: "Security and honesty" }, scores: buildScores(["Support", "Tank"], 2) },
-        { text: { ro: "Ambiție și disciplină", en: "Ambition and discipline" }, scores: buildScores(["Fighter", "Mage"], 2) },
+        { text: { ro: "Creativitatea și pofta de viață.", en: "Creativity and a zest for life." }, scores: buildScores(["Mage", "Marksman"], ["playful", "inventive", "curious"]) },
+        { text: { ro: "Inteligența și stăpânirea de sine.", en: "Intelligence and self-control." }, scores: buildScores(["Mage", "Assassin"], ["knowledge", "disciplined", "focused"]) },
+        { text: { ro: "Loialitatea și grija față de ceilalți.", en: "Loyalty and care for others." }, scores: buildScores(["Support", "Tank"], ["protector", "team", "honorable"]) },
+        { text: { ro: "Curajul de a-și urma propriul drum.", en: "The courage to follow one's own path." }, scores: buildScores(["Fighter", "Assassin"], ["independent", "warrior", "grit"]) },
       ],
     },
     {
-      text: { ro: "Când ceva merge prost, ce faci mai întâi?", en: "When something goes wrong, what do you do first?" },
+      text: { ro: "Când apare o problemă, care e primul tău instinct?", en: "When a problem comes up, what's your first instinct?" },
       answers: [
-        { text: { ro: "Mă opresc, respir și zâmbesc", en: "I pause, breathe, and smile" }, scores: buildScores(["Support", "Marksman"], 2) },
-        { text: { ro: "Caut imediat o soluție", en: "I look for a solution right away" }, scores: buildScores(["Assassin", "Mage"], 2) },
-        { text: { ro: "Îmi asum controlul și repar", en: "I take control and fix it" }, scores: buildScores(["Tank", "Fighter"], 2) },
-        { text: { ro: "Mă retrag, mă concentrez și revin", en: "I step back, refocus, and come back stronger" }, scores: buildScores(["Fighter", "Assassin"], 2) },
+        { text: { ro: "Îi ascult pe ceilalți și caut o soluție împreună.", en: "I listen to others and look for a solution together." }, scores: buildScores(["Support", "Mage"], ["team", "caretaker", "balanced"]) },
+        { text: { ro: "Analizez situația și găsesc punctul slab.", en: "I analyze the situation and find the weak point." }, scores: buildScores(["Assassin", "Mage"], ["knowledge", "opportunistic", "precise"]) },
+        { text: { ro: "Preiau inițiativa și înfrunt problema direct.", en: "I take the lead and face the problem head-on." }, scores: buildScores(["Fighter", "Tank"], ["warrior", "frontline", "grit"]) },
+        { text: { ro: "Fac un pas în spate, îmi refac planul și revin.", en: "I step back, rethink my plan, and try again." }, scores: buildScores(["Mage", "Fighter"], ["disciplined", "focused", "survivor"]) },
       ],
     },
     {
-      text: { ro: "Ce fel de provocare te motivează?", en: "What kind of challenge motivates you?" },
+      text: { ro: "Ce fel de provocare te motivează cel mai mult?", en: "What kind of challenge motivates you most?" },
       answers: [
-        { text: { ro: "Una care schimbă totul", en: "One that changes everything" }, scores: buildScores(["Assassin", "Marksman"], 2) },
-        { text: { ro: "Una care cere răbdare și strategie", en: "One that requires patience and strategy" }, scores: buildScores(["Support", "Tank"], 2) },
-        { text: { ro: "Una în care pot salva pe cineva", en: "One where I can save someone" }, scores: buildScores(["Support", "Mage"], 2) },
-        { text: { ro: "Una în care îmi arăt puterea", en: "One where I show my strength" }, scores: buildScores(["Fighter", "Tank"], 2) },
+        { text: { ro: "Să-mi asum un risc și să schimb cursul lucrurilor.", en: "Taking a risk and changing the course of things." }, scores: buildScores(["Assassin", "Marksman"], ["lethal", "opportunistic", "grit"]) },
+        { text: { ro: "Să descopăr o soluție pe care alții n-au observat-o.", en: "Finding a solution others haven't noticed." }, scores: buildScores(["Mage", "Assassin"], ["curious", "knowledge", "inventive"]) },
+        { text: { ro: "Să apăr pe cineva sau ceva important.", en: "Protecting someone or something important." }, scores: buildScores(["Support", "Tank"], ["protector", "honorable", "team"]) },
+        { text: { ro: "Să depășesc un obstacol prin perseverență.", en: "Overcoming an obstacle through perseverance." }, scores: buildScores(["Fighter", "Tank"], ["warrior", "grit", "survivor"]) },
       ],
     },
     {
-      text: { ro: "Dacă ai avea un superputere, care ar fi?", en: "If you had a superpower, what would it be?" },
+      text: { ro: "Dacă ai putea dobândi o putere, ce ai alege?", en: "If you could gain a power, what would you choose?" },
       answers: [
-        { text: { ro: "Aș schimba totul într-o clipă", en: "I would change everything in an instant" }, scores: buildScores(["Assassin", "Mage"], 2) },
-        { text: { ro: "Aș proteja și aș lumina", en: "I would protect and illuminate" }, scores: buildScores(["Support", "Mage"], 2) },
-        { text: { ro: "Aș mă adapta și aș învăța repede", en: "I would adapt and learn quickly" }, scores: buildScores(["Fighter", "Marksman"], 2) },
-        { text: { ro: "Aș controla spațiul din jur", en: "I would control the space around me" }, scores: buildScores(["Tank", "Fighter"], 2) },
+        { text: { ro: "Să mă deplasez fără să mă observe nimeni și să apar unde nu mă așteaptă nimeni.", en: "Moving unseen and appearing where no one expects me." }, scores: buildScores(["Assassin"], ["independent", "lethal", "opportunistic"]) },
+        { text: { ro: "Să vindec și să-i apăr pe cei din jur.", en: "Healing and protecting the people around me." }, scores: buildScores(["Support"], ["protector", "caretaker", "team"]) },
+        { text: { ro: "Să înțeleg orice și să-mi adaptez puterile.", en: "Understanding anything and adapting my abilities." }, scores: buildScores(["Mage"], ["magical", "knowledge", "curious"]) },
+        { text: { ro: "Să rezist oricărei lovituri și să țin piept pericolului.", en: "Withstanding any blow and standing up to danger." }, scores: buildScores(["Tank", "Fighter"], ["frontline", "durable", "grit"]) },
       ],
     },
     {
-      text: { ro: "Cum te comporți într-o competiție?", en: "How do you behave in a competition?" },
+      text: { ro: "Cum abordezi o competiție?", en: "How do you approach a competition?" },
       answers: [
-        { text: { ro: "Mă distrez și țin toată lumea în alertă", en: "I have fun and keep everyone on edge" }, scores: buildScores(["Marksman", "Assassin"], 2) },
-        { text: { ro: "Îmi fac planul și îl execut fără ezitare", en: "I make a plan and execute it without hesitation" }, scores: buildScores(["Fighter", "Tank"], 2) },
-        { text: { ro: "Mă concentrez să nu pierd controlul", en: "I focus on not losing control" }, scores: buildScores(["Support", "Tank"], 2) },
-        { text: { ro: "Folosec mintea și ajung acolo unde trebuie", en: "I use my mind and get where I need to be" }, scores: buildScores(["Mage", "Assassin"], 2) },
+        { text: { ro: "Joc imprevizibil și mă bucur de moment.", en: "I play unpredictably and enjoy the moment." }, scores: buildScores(["Marksman", "Mage"], ["chaotic", "playful", "free"]) },
+        { text: { ro: "Îmi stabilesc ținta și muncesc până o ating.", en: "I set a goal and work until I reach it." }, scores: buildScores(["Fighter", "Marksman"], ["ambitious", "focused", "grit"]) },
+        { text: { ro: "Îmi susțin echipa și rămân de încredere.", en: "I support my team and stay dependable." }, scores: buildScores(["Support", "Tank"], ["team", "protector", "dutiful"]) },
+        { text: { ro: "Studiez adversarii și aștept momentul potrivit.", en: "I study my opponents and wait for the right moment." }, scores: buildScores(["Assassin", "Mage"], ["precise", "disciplined", "opportunistic"]) },
       ],
     },
     {
-      text: { ro: "Ce părere ai despre reguli?", en: "What do you think about rules?" },
+      text: { ro: "Cum te raportezi la reguli?", en: "How do you feel about rules?" },
       answers: [
-        { text: { ro: "Există pentru a fi încălcate, dacă e nevoie", en: "They exist to be broken if necessary" }, scores: buildScores(["Assassin", "Marksman"], 2) },
-        { text: { ro: "Există pentru a ajuta societatea", en: "They exist to help society" }, scores: buildScores(["Support", "Tank"], 2) },
-        { text: { ro: "Le respect dacă au sens", en: "I respect them if they make sense" }, scores: buildScores(["Mage", "Fighter"], 2) },
-        { text: { ro: "Le folosesc pentru a obține un avantaj", en: "I use them to gain an advantage" }, scores: buildScores(["Assassin", "Tank"], 2) },
+        { text: { ro: "Le încalc dacă stau în calea unei cauze drepte.", en: "I break them if they stand in the way of what's right." }, scores: buildScores(["Fighter", "Assassin"], ["independent", "honorable", "ruthless"]) },
+        { text: { ro: "Le respect dacă îi protejează pe oameni.", en: "I respect them if they protect people." }, scores: buildScores(["Support", "Tank"], ["dutiful", "protector", "honorable"]) },
+        { text: { ro: "Le analizez și le urmez doar dacă au logică.", en: "I examine them and follow them only if they make sense." }, scores: buildScores(["Mage"], ["knowledge", "curious", "balanced"]) },
+        { text: { ro: "Le cunosc bine ca să le pot folosi în avantajul meu.", en: "I learn them well so I can use them to my advantage." }, scores: buildScores(["Assassin", "Mage"], ["knowledge", "opportunistic", "ambitious"]) },
       ],
     },
     {
       text: { ro: "Ce înseamnă succesul pentru tine?", en: "What does success mean to you?" },
       answers: [
-        { text: { ro: "Să trăiești liber și fără griji", en: "To live freely and without worries" }, scores: buildScores(["Marksman", "Support"], 2) },
-        { text: { ro: "Să-ți atingi visurile cu propriile forțe", en: "To achieve your dreams with your own strength" }, scores: buildScores(["Fighter", "Assassin"], 2) },
-        { text: { ro: "Să protejezi oamenii care contează", en: "To protect the people who matter" }, scores: buildScores(["Support", "Tank"], 2) },
-        { text: { ro: "Să fii de neoprit", en: "To be unstoppable" }, scores: buildScores(["Fighter", "Marksman"], 2) },
+        { text: { ro: "Să am libertatea să-mi aleg propriul drum.", en: "Having the freedom to choose my own path." }, scores: buildScores(["Marksman", "Assassin"], ["free", "independent", "opportunistic"]) },
+        { text: { ro: "Să-mi ating obiectivele prin muncă și disciplină.", en: "Reaching my goals through hard work and discipline." }, scores: buildScores(["Fighter", "Mage"], ["ambitious", "disciplined", "focused"]) },
+        { text: { ro: "Să-i ajut pe cei dragi să fie în siguranță.", en: "Helping the people I love stay safe." }, scores: buildScores(["Support", "Tank"], ["protector", "team", "caretaker"]) },
+        { text: { ro: "Să-mi depășesc limitele și să nu renunț.", en: "Pushing my limits and refusing to give up." }, scores: buildScores(["Fighter", "Marksman"], ["grit", "survivor", "warrior"]) },
       ],
     },
     {
-      text: { ro: "Care este locul tău preferat într-o zi liberă?", en: "What is your favorite place on a day off?" },
+      text: { ro: "Unde ți-ar plăcea să-ți petreci timpul liber?", en: "Where would you like to spend your free time?" },
       answers: [
-        { text: { ro: "În mijlocul unei acțiuni mari", en: "In the middle of a big action" }, scores: buildScores(["Marksman", "Assassin"], 2) },
-        { text: { ro: "Într-un spațiu liniștit și creativ", en: "In a quiet, creative space" }, scores: buildScores(["Mage", "Support"], 2) },
-        { text: { ro: "În natură, lângă cineva drag", en: "In nature, beside someone dear" }, scores: buildScores(["Support", "Tank"], 2) },
-        { text: { ro: "Unde nu suntem deranjați", en: "Where no one bothers us" }, scores: buildScores(["Fighter", "Assassin"], 2) },
+        { text: { ro: "Într-un loc aglomerat, plin de viață și surprize.", en: "Somewhere lively, full of people and surprises." }, scores: buildScores(["Marksman", "Mage"], ["chaotic", "playful", "free"]) },
+        { text: { ro: "Într-un atelier sau într-un loc unde pot crea ceva.", en: "In a workshop or somewhere I can create something." }, scores: buildScores(["Mage"], ["inventive", "curious", "knowledge"]) },
+        { text: { ro: "În natură, alături de prieteni sau familie.", en: "In nature, with friends or family." }, scores: buildScores(["Support", "Tank"], ["nature", "team", "protector"]) },
+        { text: { ro: "Într-un loc liniștit, unde mă pot concentra.", en: "Somewhere quiet where I can focus." }, scores: buildScores(["Assassin", "Mage"], ["independent", "disciplined", "focused"]) },
       ],
     },
     {
-      text: { ro: "Ce îți dă cele mai multe energie?", en: "What gives you the most energy?" },
+      text: { ro: "Ce îți dă energie?", en: "What gives you energy?" },
       answers: [
-        { text: { ro: "O idee nebunească și un impuls nou", en: "A wild idea and a fresh spark" }, scores: buildScores(["Marksman", "Mage"], 2) },
-        { text: { ro: "Un obiectiv clar și un plan bun", en: "A clear objective and a solid plan" }, scores: buildScores(["Tank", "Fighter"], 2) },
-        { text: { ro: "O conversație sinceră", en: "A sincere conversation" }, scores: buildScores(["Support", "Mage"], 2) },
-        { text: { ro: "Timp pentru mine și claritate", en: "Time for myself and clarity" }, scores: buildScores(["Assassin", "Fighter"], 2) },
+        { text: { ro: "Ideile noi și libertatea de a improviza.", en: "New ideas and the freedom to improvise." }, scores: buildScores(["Mage", "Marksman"], ["inventive", "playful", "curious"]) },
+        { text: { ro: "Un obiectiv greu și un plan clar.", en: "A difficult goal and a clear plan." }, scores: buildScores(["Fighter", "Tank"], ["ambitious", "disciplined", "orderly"]) },
+        { text: { ro: "Să fac o diferență pentru cineva.", en: "Making a difference for someone." }, scores: buildScores(["Support", "Mage"], ["team", "protector", "caretaker"]) },
+        { text: { ro: "Să-mi urmez instinctul fără să depind de alții.", en: "Following my instincts without relying on others." }, scores: buildScores(["Assassin", "Fighter"], ["independent", "opportunistic", "free"]) },
       ],
     },
     {
-      text: { ro: "Într-un grup, ce rol ți se potrivește cel mai bine?", en: "In a group, which role suits you best?" },
+      text: { ro: "Ce rol ți se potrivește într-un grup?", en: "Which role suits you best in a group?" },
       answers: [
-        { text: { ro: "Cel care ridică atmosfera", en: "The one who lifts the mood" }, scores: buildScores(["Marksman", "Support"], 2) },
-        { text: { ro: "Liderul care decide", en: "The leader who makes the call" }, scores: buildScores(["Fighter", "Tank"], 2) },
-        { text: { ro: "Strategul din umbră", en: "The strategist in the shadows" }, scores: buildScores(["Assassin", "Mage"], 2) },
-        { text: { ro: "Lupul singuratic", en: "The lone wolf" }, scores: buildScores(["Assassin", "Fighter"], 2) },
+        { text: { ro: "Cel care aduce voie bună și idei neașteptate.", en: "The one who brings fun and unexpected ideas." }, scores: buildScores(["Marksman", "Mage"], ["playful", "chaotic", "inventive"]) },
+        { text: { ro: "Cel care își asumă răspunderea și îi apără pe ceilalți.", en: "The one who takes responsibility and protects others." }, scores: buildScores(["Tank", "Support"], ["dutiful", "protector", "frontline"]) },
+        { text: { ro: "Cel care observă totul și gândește câțiva pași înainte.", en: "The one who notices everything and thinks several steps ahead." }, scores: buildScores(["Mage", "Assassin"], ["knowledge", "orderly", "precise"]) },
+        { text: { ro: "Cel care își păstrează independența și merge pe cont propriu.", en: "The one who stays independent and goes their own way." }, scores: buildScores(["Assassin", "Fighter"], ["independent", "free", "grit"]) },
       ],
     },
     {
-      text: { ro: "Ce contează cel mai mult pentru tine în viață?", en: "What matters most to you in life?" },
+      text: { ro: "Ce te face să ai încredere într-o alegere?", en: "What makes you confident in a choice?" },
       answers: [
-        { text: { ro: "Libertatea și senzația de a trăi", en: "Freedom and the feeling of living" }, scores: buildScores(["Marksman", "Assassin"], 2) },
-        { text: { ro: "Familia și oamenii care contează", en: "Family and the people who matter" }, scores: buildScores(["Support", "Tank"], 2) },
-        { text: { ro: "Curiozitatea și învățarea", en: "Curiosity and learning" }, scores: buildScores(["Mage", "Assassin"], 2) },
-        { text: { ro: "Puterea de a ajunge unde vrei", en: "The power to reach where you want" }, scores: buildScores(["Fighter", "Marksman"], 2) },
+        { text: { ro: "Intuiția și șansa de a acționa la momentul potrivit.", en: "Instinct and the chance to act at just the right moment." }, scores: buildScores(["Assassin", "Marksman"], ["opportunistic", "precise", "focused"]) },
+        { text: { ro: "Să știu că alegerea îi protejează pe cei dragi.", en: "Knowing the choice protects the people I care about." }, scores: buildScores(["Support", "Tank"], ["protector", "honorable", "team"]) },
+        { text: { ro: "Să înțeleg toate posibilitățile înainte să decid.", en: "Understanding all the possibilities before I decide." }, scores: buildScores(["Mage"], ["knowledge", "curious", "orderly"]) },
+        { text: { ro: "Să-mi urmez convingerile chiar și când e greu.", en: "Following my convictions, even when it's difficult." }, scores: buildScores(["Fighter"], ["grit", "independent", "honorable"]) },
       ],
     },
   ];

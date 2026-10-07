@@ -1,24 +1,46 @@
 const translations = {
   ro: {
     kicker: "Quiz de personalitate",
-    title: "Care campion din League of Legends ești tu?",
-    lead: "Răspunde la 12 întrebări. La final, îți arăt campionul care ți se potrivește.",
-    start: "Începe",
+    chooseTitle: "Alege jocul",
+    chooseLead: "Alege jocul și află ce personaj ți se potrivește.",
+    lolDescription: "Găsește campionul care ți se potrivește.",
+    valorantDescription: "Află ce agent ți se potrivește.",
+    chooseGame: "Alege un joc",
+    startLol: "Începe quiz-ul LoL",
+    startValorant: "Începe quiz-ul VALORANT",
+    gameStartLolTitle: "Ce campion din League of Legends ești?",
+    gameStartValorantTitle: "Ce agent din VALORANT ești?",
+    gameStartLolLead: "Răspunde la 12 întrebări și află ce campion ți se potrivește.",
+    gameStartValorantLead: "Răspunde la 8 întrebări și află ce agent ți se potrivește.",
     progress: "Întrebarea {current} / {total}",
-    resultKicker: "Campionul tău",
+    resultLol: "Campionul tău",
+    resultValorant: "Agentul tău",
     storyLabel: "Poveste",
     again: "Joacă din nou",
+    changeGame: "Alege alt joc",
+    signature: "Îți mulțumesc că ai încercat acest quiz. — Joe",
     share: "Distribuie",
   },
   en: {
     kicker: "Personality quiz",
-    title: "Which League of Legends champion are you?",
-    lead: "Answer 12 questions. At the end, I'll show the champion that fits you.",
-    start: "Start",
+    chooseTitle: "Choose a game",
+    chooseLead: "Pick a game and find out which character matches you.",
+    lolDescription: "Find the champion that fits your personality.",
+    valorantDescription: "Find the agent that fits you.",
+    chooseGame: "Choose a game",
+    startLol: "Start the LoL quiz",
+    startValorant: "Start the VALORANT quiz",
+    gameStartLolTitle: "Which League of Legends champion are you?",
+    gameStartValorantTitle: "Which VALORANT agent are you?",
+    gameStartLolLead: "Answer 12 questions and find out which champion fits you.",
+    gameStartValorantLead: "Answer 8 questions and find out which agent fits you.",
     progress: "Question {current} / {total}",
-    resultKicker: "Your champion",
+    resultLol: "Your champion",
+    resultValorant: "Your agent",
     storyLabel: "Story",
     again: "Play again",
+    changeGame: "Choose another game",
+    signature: "Thanks for trying this quiz. — Joe",
     share: "Share",
   },
 };
@@ -48,4 +70,8 @@ function setLanguage(lang) {
   document.querySelectorAll(".lang-btn").forEach((btn) => {
     btn.classList.toggle("is-active", btn.dataset.lang === currentLang);
   });
+
+  if (typeof updateGameSelection === "function") {
+    updateGameSelection();
+  }
 }
